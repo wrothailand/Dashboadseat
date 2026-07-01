@@ -1,381 +1,769 @@
 <!DOCTYPE html>
+
 <html>
+
 <head>
+
   <base target="_top">
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>WRO Live Check-in Monitor (Dual Core - Configurable)</title>
+
   
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
+
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
+
   <style>
+
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
     .crossed-out { position: relative; background-color: #f8fafc !important; border-style: dashed !important; border-color: #cbd5e1 !important; cursor: not-allowed; }
+
     .crossed-out-line { position: relative; }
+
     .crossed-out-line::before, .crossed-out-line::after { content: ''; position: absolute; width: 100%; height: 2px; background-color: #fda4af; top: 50%; left: 0; }
+
     .crossed-out-line::before { transform: rotate(45deg); }
+
     .crossed-out-line::after { transform: rotate(-45deg); }
+
   </style>
+
 </head>
+
 <body class="bg-slate-100 min-h-screen p-4 sm:p-6 text-slate-800">
 
+
+
   <div class="max-w-[1650px] mx-auto bg-white p-6 sm:p-8 rounded-3xl shadow-xl shadow-slate-200 border border-slate-100">
+
     
+
     <div class="flex justify-start mb-6">
+
       <img src="./Logo WRO 2026-01.png" alt="Organizer Logo" class="h-14 sm:h-16 w-auto object-contain" onerror="this.src='https://lh3.googleusercontent.com/d/1M03LT3R3zSw9QPNIs0H1NsmFyWmUtFFF'; this.style.opacity='0.5';">
+
     </div>
+
     
+
     <div class="rounded-2xl bg-gradient-to-r from-[#16195e] via-[#241c53] to-[#4c3d90] p-6 sm:p-8 text-white mb-8 shadow-md relative overflow-hidden">
+
       <div class="absolute -right-10 -top-10 w-40 h-40 bg-[#39a9dc]/10 rounded-full blur-2xl"></div>
+
       <div class="text-center md:text-left">
+
         <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-2 drop-shadow-sm flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
+
           <span>Dashboard</span>
+
           <span id="envBadge" class="text-xs bg-[#39a9dc] text-white px-3 py-1 rounded-full font-bold tracking-widest uppercase">Detecting...</span>
+
         </h1>
+
         <p class="text-xs sm:text-sm text-indigo-200/80">ชี้เมาส์เพื่อดูตัวอย่าง • คลิกที่ช่องเพื่อดูข้อมูลเต็มรูปแบบผ่าน SweetAlert</p>
+
         
+
         <div id="liveStatus" class="hidden flex items-center justify-center md:justify-start gap-2 mt-4 text-xs bg-[#16195e]/50 backdrop-blur-sm w-fit px-4 py-1.5 rounded-full border border-indigo-400/20 text-indigo-200">
+
           <span class="relative flex h-2 w-2">
+
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+
             <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+
           </span>
+
           <span id="lastUpdatedText" class="font-medium">ระบบอัปเดตอัตโนมัติเปิดใช้งานอยู่</span>
+
         </div>
+
       </div>
+
     </div>
+
     
+
     <div class="mb-10 flex flex-col lg:flex-row items-center justify-between gap-6 bg-slate-50 p-5 rounded-2xl border border-slate-200/60 shadow-sm">
+
       <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+
         
+
         <div class="flex items-center gap-3 w-full sm:w-auto">
+
           <label for="eventDropdown" class="font-bold text-slate-700 text-base flex items-center gap-2 shrink-0">
+
             🎯 Event:
+
           </label>
+
           <select id="eventDropdown" onchange="loadEventData(false)" class="w-full sm:w-80 p-3 bg-white border border-slate-300 rounded-xl shadow-inner outline-none focus:ring-2 focus:ring-[#4c3d90]/20 focus:border-[#4c3d90] transition-all text-slate-700 font-semibold">
+
             <option value="">-- กำลังตรวจจับโหมดการทำงาน... --</option>
+
           </select>
+
         </div>
+
+
 
         <div class="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm w-full sm:w-auto shrink-0 justify-between sm:justify-start">
+
           <span class="text-xs sm:text-sm font-bold text-slate-600 flex items-center gap-1">⚙️ แผนผังสี:</span>
+
           <label class="relative inline-flex items-center cursor-pointer select-none">
+
             <input type="checkbox" id="colorModeToggle" onchange="handleColorModeChange()" class="sr-only peer">
+
             <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+
             <span class="ml-2 text-xs font-bold text-slate-500 peer-checked:text-purple-600 transition-colors" id="toggleLabel">ปกติ (ม่วง ➜ ชี้ขาว)</span>
+
           </label>
+
         </div>
+
       </div>
+
       
+
       <div class="text-center lg:text-right shrink-0 bg-white lg:bg-transparent px-6 py-2 lg:p-0 rounded-xl border border-slate-100 lg:border-0 shadow-sm lg:shadow-none w-full lg:w-auto">
+
         <div id="realtimeClock" class="text-3xl sm:text-4xl md:text-5xl font-black text-[#16195e] tracking-wider font-mono leading-none">00:00:00</div>
+
         <div id="realtimeDate" class="text-[11px] sm:text-xs font-bold text-[#4c3d90] tracking-widest uppercase mt-1.5">---</div>
+
       </div>
+
     </div>
 
-    <div id="gridContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6"></div>
+
+
+    <div id="gridContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"></div>
+
   </div>
 
+
+
   <script>
+
     const API_URL = "https://script.google.com/macros/s/AKfycbwlIApN7eIG7iEHgkSOilHvIwif2g8JfYRngTl1DA8N8au6lWbfSPOStDAgY6Cox_1O/exec"; 
 
+
+
     let refreshTimer = null;
+
     window.currentEventData = {};
+
     window.lastRawData = null;
 
+
+
     function isGoogleEnvironment() {
+
       return (typeof google !== 'undefined' && google.script && google.script.run);
+
     }
+
+
 
     function initRealtimeClock() {
+
       function update() {
+
         const now = new Date();
+
         document.getElementById('realtimeClock').textContent = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+
         document.getElementById('realtimeDate').textContent = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
       }
+
       update(); setInterval(update, 1000);
+
     }
+
+
 
     function initColorModeSetting() {
+
       const savedMode = localStorage.getItem('wro_checkin_color_mode');
+
       const toggle = document.getElementById('colorModeToggle');
+
       const label = document.getElementById('toggleLabel');
+
       
+
       if (savedMode === 'inverted') {
+
         toggle.checked = true;
+
         label.textContent = "สลับสี (จาง ➜ ชี้ขาว)";
+
       } else {
+
         toggle.checked = false;
+
         label.textContent = "ปกติ (ม่วง ➜ ชี้ขาว)";
+
       }
+
     }
+
+
 
     function handleColorModeChange() {
+
       const toggle = document.getElementById('colorModeToggle');
+
       const label = document.getElementById('toggleLabel');
+
       
+
       if (toggle.checked) {
+
         localStorage.setItem('wro_checkin_color_mode', 'inverted');
+
         label.textContent = "สลับสี (จาง ➜ ชี้ขาว)";
+
       } else {
+
         localStorage.setItem('wro_checkin_color_mode', 'default');
+
         label.textContent = "ปกติ (ม่วง ➜ ชี้ขาว)";
+
       }
+
+
 
       if (window.lastRawData) {
+
         processAndRenderGrid(window.lastRawData, true);
+
       }
+
     }
+
+
 
     window.onload = function() {
+
       initRealtimeClock(); 
+
       initColorModeSetting();
+
       
+
       const badge = document.getElementById('envBadge');
+
       const dropdown = document.getElementById('eventDropdown');
 
+
+
       if (isGoogleEnvironment()) {
+
         badge.textContent = "World Robot Olympiad 2026";
+
         badge.className = "text-xs bg-emerald-600 text-white px-3 py-1 rounded-full font-bold tracking-widest uppercase";
+
         google.script.run.withSuccessHandler(events => renderDropdown(events)).getEvents();
+
       } else {
+
         badge.textContent = "World Robot Olympiad 2026";
+
         badge.className = "text-xs bg-indigo-600 text-white px-3 py-1 rounded-full font-bold tracking-widest uppercase";
+
         
+
         if (API_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+
           Swal.fire('ตั้งค่า API', 'หากใช้งานบน GitHub อย่าลืมใส่ URL เว็บแอปในตัวแปร API_URL นะครับ', 'info');
+
           dropdown.innerHTML = '<option value="">❌ รอระบุ API_URL ในโค้ด</option>';
+
           return;
+
         }
+
+
 
         fetch(`${API_URL}?action=getEvents`)
+
           .then(res => res.json())
+
           .then(events => renderDropdown(events))
+
           .catch(err => { console.error(err); dropdown.innerHTML = '<option value="">❌ การเชื่อมต่อ API ผิดพลาด</option>'; });
+
       }
+
     };
 
+
+
     function renderDropdown(events) {
+
       const dropdown = document.getElementById('eventDropdown');
+
       dropdown.innerHTML = '<option value="">-- กรุณาเลือกรายการ --</option>';
+
       events.forEach(ev => {
+
         const opt = document.createElement('option'); opt.value = ev; opt.textContent = ev;
+
         dropdown.appendChild(opt);
+
       });
+
     }
+
+
 
     function loadEventData(isBackground = false) {
+
       const selectedEvent = document.getElementById('eventDropdown').value;
+
       const container = document.getElementById('gridContainer');
+
       const liveStatus = document.getElementById('liveStatus');
+
       const lastUpdatedText = document.getElementById('lastUpdatedText');
+
+
 
       if (!selectedEvent) {
+
         container.innerHTML = ''; liveStatus.classList.add('hidden');
+
         window.lastRawData = null;
+
         if (refreshTimer) clearInterval(refreshTimer);
+
         return;
+
       }
+
       
+
       if (!isBackground) {
+
         container.innerHTML = `
+
           <div class="col-span-full flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
+
             <svg class="animate-spin h-8 w-8 text-[#4c3d90]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+
             <span class="text-sm font-medium text-slate-500">กำลังดึงข้อมูลแผนผังล่าสุด...</span>
+
           </div>`;
+
       } else {
+
         lastUpdatedText.textContent = "กำลังตรวจสอบสถานะล่าสุด...";
+
       }
+
+
 
       if (isGoogleEnvironment()) {
+
         google.script.run.withSuccessHandler(data => processAndRenderGrid(data, isBackground)).getEventData(selectedEvent);
+
       } else {
+
         fetch(`${API_URL}?action=getEventData&selectedEvent=${encodeURIComponent(selectedEvent)}`)
+
           .then(res => res.json())
+
           .then(data => processAndRenderGrid(data, isBackground))
+
           .catch(err => { console.error(err); lastUpdatedText.textContent = "❌ การเชื่อมต่อข้อมูลล่าสุดขัดข้อง"; });
+
       }
+
     }
+
+
 
     function processAndRenderGrid(data, isBackground) {
+
       window.lastRawData = data; 
+
       
+
       const container = document.getElementById('gridContainer');
+
       const liveStatus = document.getElementById('liveStatus');
+
       const lastUpdatedText = document.getElementById('lastUpdatedText');
+
       
+
       const isInvertedMode = document.getElementById('colorModeToggle').checked;
+
       
+
       let mainContentHtml = '';
+
       const groups = {};
+
       window.currentEventData = {};
 
+
+
       data.forEach(item => {
+
         if(!item.seatCode) return;
+
         const seatCodeClean = item.seatCode.toString().trim();
+
         const match = seatCodeClean.match(/^([A-Za-z]+)(\d+)$/);
+
         
+
         if (match) {
+
           const letter = match[1].toUpperCase(); const num = parseInt(match[2]);       
+
           
+
           let derivedAgeGroup = "WRO Team";
+
           const checkString = item.name ? item.name.toString() : "";
+
           if (checkString.includes("Elementary")) derivedAgeGroup = "Elementary";
+
           else if (checkString.includes("Junior")) derivedAgeGroup = "Junior";
+
           else if (checkString.includes("Senior")) derivedAgeGroup = "Senior";
 
+
+
           if (!groups[letter]) {
+
             groups[letter] = { maxNum: 0, dbItems: {}, ageGroup: derivedAgeGroup };
+
           }
+
           if (groups[letter].ageGroup === "WRO Team" && derivedAgeGroup !== "WRO Team") {
+
             groups[letter].ageGroup = derivedAgeGroup;
+
           }
+
+
 
           groups[letter].dbItems[seatCodeClean] = item;
+
           if (num > groups[letter].maxNum) groups[letter].maxNum = num;
+
         }
+
       });
+
+
 
       if (Object.keys(groups).length === 0) {
+
         container.innerHTML = '<p class="text-center col-span-full text-rose-500 bg-rose-50 p-4 rounded-xl font-medium">ไม่พบข้อมูลแถวใน Event นี้</p>';
+
         liveStatus.classList.add('hidden'); return;
+
       }
+
+
 
       Object.keys(groups).sort().forEach(letter => {
+
         const group = groups[letter]; const capacity = group.maxNum; 
+
         
+
         let containerClass = "bg-slate-50 border border-slate-200/60 p-4 rounded-2xl flex flex-col items-center shadow-sm hover:bg-white hover:shadow-xl hover:border-slate-300 transition-all duration-300";
+
         let headerClass = "w-full text-center bg-[#16195e] text-white py-1.5 mb-4 rounded-xl font-bold text-sm shadow-sm tracking-wide";
+
         let defaultTextCategoryColor = "text-slate-400";
+
         let defaultSeatColor = "text-slate-700";
 
+
+
         if (group.ageGroup === "Elementary") {
+
           containerClass = "bg-green-50/50 border border-green-200/60 p-4 rounded-2xl flex flex-col items-center shadow-sm hover:bg-white hover:shadow-xl hover:border-green-300 transition-all duration-300";
+
           headerClass = "w-full text-center bg-green-600 text-white py-1.5 mb-4 rounded-xl font-bold text-sm shadow-sm tracking-wide";
+
           defaultTextCategoryColor = "text-green-600 font-bold"; defaultSeatColor = "text-green-700";
+
         } else if (group.ageGroup === "Junior") {
+
           containerClass = "bg-rose-50/50 border border-rose-200/60 p-4 rounded-2xl flex flex-col items-center shadow-sm hover:bg-white hover:shadow-xl hover:border-rose-300 transition-all duration-300";
+
           headerClass = "w-full text-center bg-rose-600 text-white py-1.5 mb-4 rounded-xl font-bold text-sm shadow-sm tracking-wide";
+
           defaultTextCategoryColor = "text-red-500 font-bold"; defaultSeatColor = "text-red-600";
+
         } else if (group.ageGroup === "Senior") {
+
           containerClass = "bg-blue-50/50 border border-blue-200/60 p-4 rounded-2xl flex flex-col items-center shadow-sm hover:bg-white hover:shadow-xl hover:border-blue-300 transition-all duration-300";
+
           headerClass = "w-full text-center bg-blue-600 text-white py-1.5 mb-4 rounded-xl font-bold text-sm shadow-sm tracking-wide";
+
           defaultTextCategoryColor = "text-blue-600 font-bold"; defaultSeatColor = "text-blue-700";
+
         }
+
+
 
         mainContentHtml += `<div class="${containerClass}">`;
+
         mainContentHtml += `<div class="${headerClass}">${group.ageGroup} (${letter})</div>`;
+
         mainContentHtml += `<div class="grid grid-cols-2 gap-2">`; 
 
+
+
         for (let r = 1; r <= 6; r++) {
+
           let leftNum = (r <= Math.ceil(capacity / 2)) ? r : null;
+
           let rightNum = (r <= Math.floor(capacity / 2)) ? (capacity - r + 1) : null;
 
+
+
           [ {num: leftNum, crossed: !leftNum}, {num: rightNum, crossed: !rightNum} ].forEach(cell => {
+
             const targetSeatKey = cell.num ? `${letter}${cell.num}` : "";
+
             let cellClass = "w-20 h-20 sm:w-22 sm:h-22 border border-slate-200 rounded-2xl flex flex-col items-center justify-center text-center p-2 transition-all duration-300 ease-out hover:scale-108 hover:shadow-lg cursor-pointer group relative";
+
             let cellContent = "";
 
+
+
             if (cell.crossed) {
+
               cellClass += " crossed-out";
+
               cellContent = `<div class="w-full h-full crossed-out-line rounded-2xl opacity-40"></div>`;
+
             } else {
+
               const record = group.dbItems[targetSeatKey];
+
               if(record) { window.currentEventData[targetSeatKey] = record; }
 
+
+
               let seatLabelHtml = `<span class="text-xl sm:text-2xl font-bold tracking-tight ${defaultSeatColor}">${targetSeatKey}</span>`;
+
               let nameLabelHtml = `<span class="text-[10px] sm:text-[11px] leading-tight mt-1 line-clamp-1 w-full break-all ${defaultTextCategoryColor}">${record ? (record.teamId || "-") : ""}</span>`;
 
+
+
+              // 🎯 จัดการรูปแบบผังสีสำหรับทีมที่ Check in แล้ว
+
               if (record && record.status === "Check in") {
+
                 if (!isInvertedMode) {
+
+                  // ⭐ [โหมดปกติ]: ไม่ชี้ = พื้นม่วงเข้ม ตัวอักษรขาว | ชี้เมาส์ = พื้นขาว ตัวอักษรม่วง กรอบม่วง
+
                   cellClass += " bg-purple-600 border-purple-700 text-white hover:bg-white hover:border-purple-600";
+
                   seatLabelHtml = `<span class="text-xl sm:text-2xl font-bold tracking-tight text-white group-hover:text-purple-600 transition-colors">${targetSeatKey}</span>`;
+
                   nameLabelHtml = `<span class="text-[10px] sm:text-[11px] leading-tight font-bold text-purple-100 group-hover:text-purple-700 mt-1 line-clamp-1 w-full break-all transition-colors">${record.teamId || "-"}</span>`;
+
                 } else {
+
+                  // 🔮 [โหมดสลับสี]: ไม่ชี้ = พื้นจางพาสเทล ตัวอักษรม่วงพาสเทลจางๆ | ชี้เมาส์ = พื้นขาว ตัวอักษรม่วงเข้ม กรอบม่วง
+
                   cellClass += " bg-purple-50 border-purple-200 hover:bg-white hover:border-purple-600";
+
                   seatLabelHtml = `<span class="text-xl sm:text-2xl font-bold tracking-tight text-purple-400/80 group-hover:text-purple-600 transition-colors">${targetSeatKey}</span>`;
+
                   nameLabelHtml = `<span class="text-[10px] sm:text-[11px] leading-tight font-bold text-purple-400 group-hover:text-purple-700 mt-1 line-clamp-1 w-full break-all transition-colors">${record.teamId || "-"}</span>`;
+
                 }
+
               } else {
+
+                // ◽ ช่องว่าง หรือช่องที่ยังไม่เช็คอิน ให้คงเป็นพื้นหลังสีขาวธรรมดาไว้
+
                 cellClass += " bg-white hover:border-[#4c3d90]";
+
               }
+
               cellContent = seatLabelHtml + nameLabelHtml;
 
+
+
               if (record) {
+
                 const statusBadge = record.status === "Check in" 
+
                   ? `<span class="text-xs bg-purple-500 text-white px-2.5 py-0.5 rounded-full font-bold">Check in แล้ว</span>` 
+
                   : `<span class="text-xs bg-slate-600 text-slate-200 px-2.5 py-0.5 rounded-full font-medium">ยังไม่ Check in</span>`;
 
+
+
                 cellContent += `
+
                   <div class="absolute hidden group-hover:block bottom-[105%] left-1/2 -translate-x-1/2 mb-2 w-72 bg-slate-950 text-slate-100 text-sm rounded-2xl p-4 shadow-2xl border border-slate-800 z-50 pointer-events-none text-left backdrop-blur-md bg-opacity-95 transition-all">
+
                     <div class="border-b border-slate-800 pb-2 mb-2 flex justify-between items-center">
+
                       <span class="font-extrabold text-base text-[#39a9dc]"> ช่อง: ${targetSeatKey}</span>
+
                       ${statusBadge}
+
                     </div>
+
                     <p class="truncate text-sm mt-1"><span class="text-slate-400 font-medium">Team ID:</span> <span class="font-mono font-bold text-amber-400">${record.teamId || '-'}</span></p>
+
                     <p class="truncate text-sm mt-1"><span class="text-slate-400 font-medium">Team Name:</span> <span class="font-semibold text-white">${record.teamName || record.name || '-'}</span></p>
+
                     <p class="truncate text-xs text-indigo-300 mt-2 flex items-center gap-1">💡 คลิกที่ช่องเพื่อดูข้อมูลสมาชิกแบบเต็ม</p>
+
                     <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-950"></div>
+
                   </div>`;
+
               }
+
             }
+
             mainContentHtml += `<div class="${cellClass}" onclick="triggerSweetAlert('${targetSeatKey}')">${cellContent}</div>`;
+
           });
+
         }
+
         mainContentHtml += `</div></div>`;
+
       });
+
+
 
       container.innerHTML = mainContentHtml;
+
       const now = new Date();
+
       liveStatus.classList.remove('hidden');
+
       lastUpdatedText.textContent = `อัปเดตล่าสุดเมื่อ ${now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} (ระบบรีเฟรชข้อมูลอัตโนมัติทุก 30 วินาที)`;
 
+
+
       if (!isBackground) {
+
         if (refreshTimer) clearInterval(refreshTimer);
+
         refreshTimer = setInterval(() => loadEventData(true), 30000); 
+
       }
+
     }
+
+
 
     function triggerSweetAlert(seatKey) {
+
       const record = window.currentEventData[seatKey]; if (!record) return; 
+
       const isCheckedIn = record.status === "Check in";
+
       const statusBadgeHtml = isCheckedIn
+
         ? `<span class="inline-block bg-purple-500 text-white text-sm px-4 py-1 rounded-full font-bold shadow-sm">✓ Check in เรียบร้อยแล้ว</span>`
+
         : `<span class="inline-block bg-amber-500 text-white text-sm px-4 py-1 rounded-full font-semibold shadow-sm">⏳ ยังไม่ได้ทำการ Check in</span>`;
 
+
+
       Swal.fire({
+
         title: `📋 ข้อมูลทีม [ ${seatKey} ]`,
+
         html: `
+
           <div class="text-left text-base space-y-4 mt-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 font-sans text-slate-700">
+
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3 mb-2">
+
               <span class="font-extrabold text-slate-800 text-base sm:text-lg">สถานะปัจจุบัน:</span>
+
               ${statusBadgeHtml}
+
             </div>
+
             <p class="flex items-center gap-2 text-base"><strong class="text-slate-500 min-w-28 text-sm sm:text-base">Team ID:</strong> <span class="font-mono text-slate-900 bg-slate-200 px-2 py-0.5 rounded font-bold text-sm">${record.teamId || '-'}</span></p>
+
             <p class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2 text-base"><strong class="text-slate-500 min-w-28 text-sm sm:text-base">Team Name:</strong> <span class="text-[#4c3d90] font-extrabold text-lg sm:text-xl">${record.teamName || record.name || '-'}</span></p>
+
             <p class="flex gap-2 text-base"><strong class="text-slate-500 min-w-28 text-sm sm:text-base">Institution:</strong> <span class="text-slate-900 font-semibold">${record.institution || '-'}</span></p>
+
             <p class="flex gap-2 text-base"><strong class="text-slate-500 min-w-28 text-sm sm:text-base">Coach :</strong> <span class="text-slate-900 font-medium">${record.coach || '-'}</span></p>
+
             <p class="flex gap-2 text-base"><strong class="text-slate-500 min-w-28 text-sm sm:text-base">Phone No:</strong> <span class="text-slate-900 font-bold bg-indigo-50 text-indigo-950 px-2 py-0.5 rounded border border-indigo-100/60">${record.phone || '-'}</span></p>
+
             
+
             <div class="pt-4 border-t border-slate-200 mt-2">
+
               <p class="font-extrabold text-slate-900 text-base sm:text-lg mb-2 flex items-center gap-1">👥 รายชื่อสมาชิก:</p>
+
               <div class="bg-white border border-slate-100 p-3 rounded-xl space-y-2 text-slate-800 pl-4 list-decimal text-base">
+
                 ${record.member1 ? `<div class="truncate py-0.5"><span class="font-extrabold text-slate-400 mr-2">1.</span><span class="font-medium">${record.member1}</span></div>` : ''}
+
                 ${record.member2 ? `<div class="truncate py-0.5"><span class="font-extrabold text-slate-400 mr-2">2.</span><span class="font-medium">${record.member2}</span></div>` : ''}
+
                 ${record.member3 ? `<div class="truncate py-0.5"><span class="font-extrabold text-slate-400 mr-2">3.</span><span class="font-medium">${record.member3}</span></div>` : ''}
+
                 ${(!record.member1 && !record.member2 && !record.member3) ? '<div class="italic text-slate-400 text-center py-2 text-sm">ไม่มีข้อมูลรายชื่อนักแข่ง</div>' : ''}
+
               </div>
+
             </div>
+
           </div>`,
+
         icon: isCheckedIn ? 'success' : 'warning',
+
         confirmButtonText: 'ปิด', confirmButtonColor: isCheckedIn ? '#8b5cf6' : '#16195e',
+
         buttonsStyling: true,
+
         customClass: { popup: 'rounded-3xl p-6 max-w-xl w-full', title: 'font-black text-slate-800 text-xl sm:text-2xl tracking-tight' }
+
       });
+
     }
+
   </script>
+
 </body>
+
 </html>
