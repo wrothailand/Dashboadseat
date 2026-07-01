@@ -4,7 +4,7 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WRO Live Check-in Monitor (Dual Core)</title>
+  <title>WRO Live Check-in Monitor (Dual Core - Configurable)</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +26,7 @@
   <div class="max-w-[1650px] mx-auto bg-white p-6 sm:p-8 rounded-3xl shadow-xl shadow-slate-200 border border-slate-100">
     
     <div class="flex justify-start mb-6">
-      <img src="https://lh3.googleusercontent.com/d/1M03LT3R3zSw9QPNIs0H1NsmFyWmUtFFF" alt="Organizer Logo" class="h-14 sm:h-16 w-auto object-contain" onerror="this.style.opacity='0.5';">
+      <img src="./Logo WRO 2026-01.png" alt="Organizer Logo" class="h-14 sm:h-16 w-auto object-contain" onerror="this.src='https://lh3.googleusercontent.com/d/1M03LT3R3zSw9QPNIs0H1NsmFyWmUtFFF'; this.style.opacity='0.5';">
     </div>
     
     <div class="rounded-2xl bg-gradient-to-r from-[#16195e] via-[#241c53] to-[#4c3d90] p-6 sm:p-8 text-white mb-8 shadow-md relative overflow-hidden">
@@ -48,17 +48,29 @@
       </div>
     </div>
     
-    <div class="mb-10 flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-50 p-5 rounded-2xl border border-slate-200/60 shadow-sm">
-      <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-        <label for="eventDropdown" class="font-bold text-slate-700 text-base flex items-center gap-2 shrink-0">
-          🎯 Event:
-        </label>
-        <select id="eventDropdown" onchange="loadEventData(false)" class="w-full sm:w-80 p-3 bg-white border border-slate-300 rounded-xl shadow-inner outline-none focus:ring-2 focus:ring-[#4c3d90]/20 focus:border-[#4c3d90] transition-all text-slate-700 font-semibold">
-          <option value="">-- กำลังตรวจจับโหมดการทำงาน... --</option>
-        </select>
+    <div class="mb-10 flex flex-col lg:flex-row items-center justify-between gap-6 bg-slate-50 p-5 rounded-2xl border border-slate-200/60 shadow-sm">
+      <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+        
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <label for="eventDropdown" class="font-bold text-slate-700 text-base flex items-center gap-2 shrink-0">
+            🎯 Event:
+          </label>
+          <select id="eventDropdown" onchange="loadEventData(false)" class="w-full sm:w-80 p-3 bg-white border border-slate-300 rounded-xl shadow-inner outline-none focus:ring-2 focus:ring-[#4c3d90]/20 focus:border-[#4c3d90] transition-all text-slate-700 font-semibold">
+            <option value="">-- กำลังตรวจจับโหมดการทำงาน... --</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm w-full sm:w-auto shrink-0 justify-between sm:justify-start">
+          <span class="text-xs sm:text-sm font-bold text-slate-600 flex items-center gap-1">⚙️ แผนผังสี:</span>
+          <label class="relative inline-flex items-center cursor-pointer select-none">
+            <input type="checkbox" id="colorModeToggle" onchange="handleColorModeChange()" class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+            <span class="ml-2 text-xs font-bold text-slate-500 peer-checked:text-purple-600 transition-colors" id="toggleLabel">ปกติ (ม่วง ➜ ชี้ขาว)</span>
+          </label>
+        </div>
       </div>
       
-      <div class="text-center md:text-right shrink-0 bg-white md:bg-transparent px-6 py-2 md:p-0 rounded-xl border border-slate-100 md:border-0 shadow-sm md:shadow-none w-full md:w-auto">
+      <div class="text-center lg:text-right shrink-0 bg-white lg:bg-transparent px-6 py-2 lg:p-0 rounded-xl border border-slate-100 lg:border-0 shadow-sm lg:shadow-none w-full lg:w-auto">
         <div id="realtimeClock" class="text-3xl sm:text-4xl md:text-5xl font-black text-[#16195e] tracking-wider font-mono leading-none">00:00:00</div>
         <div id="realtimeDate" class="text-[11px] sm:text-xs font-bold text-[#4c3d90] tracking-widest uppercase mt-1.5">---</div>
       </div>
@@ -68,14 +80,12 @@
   </div>
 
   <script>
-    // 🌐 [จำเป็นสำหรับ GitHub] วาง URL เว็บแอป (ลงท้ายด้วย /exec) ที่ได้จากการ Deploy ในนี้
-    // หมายเหตุ: เมื่อรันในฐานะ Google Web App ตัวแปรนี้จะถูกข้ามไปโดยอัตโนมัติ ไม่ต้องกังวลครับ
     const API_URL = "https://script.google.com/macros/s/AKfycbwlIApN7eIG7iEHgkSOilHvIwif2g8JfYRngTl1DA8N8au6lWbfSPOStDAgY6Cox_1O/exec"; 
 
     let refreshTimer = null;
     window.currentEventData = {};
+    window.lastRawData = null;
 
-    // ตรวจสอบว่าระบบรันอยู่ภายใน Google Apps Script หรือรันข้างนอก (GitHub)
     function isGoogleEnvironment() {
       return (typeof google !== 'undefined' && google.script && google.script.run);
     }
@@ -89,19 +99,49 @@
       update(); setInterval(update, 1000);
     }
 
+    function initColorModeSetting() {
+      const savedMode = localStorage.getItem('wro_checkin_color_mode');
+      const toggle = document.getElementById('colorModeToggle');
+      const label = document.getElementById('toggleLabel');
+      
+      if (savedMode === 'inverted') {
+        toggle.checked = true;
+        label.textContent = "สลับสี";
+      } else {
+        toggle.checked = false;
+        label.textContent = "ปกติ";
+      }
+    }
+
+    function handleColorModeChange() {
+      const toggle = document.getElementById('colorModeToggle');
+      const label = document.getElementById('toggleLabel');
+      
+      if (toggle.checked) {
+        localStorage.setItem('wro_checkin_color_mode', 'inverted');
+        label.textContent = "สลับสี";
+      } else {
+        localStorage.setItem('wro_checkin_color_mode', 'default');
+        label.textContent = "ปกติ";
+      }
+
+      if (window.lastRawData) {
+        processAndRenderGrid(window.lastRawData, true);
+      }
+    }
+
     window.onload = function() {
       initRealtimeClock(); 
+      initColorModeSetting();
+      
       const badge = document.getElementById('envBadge');
       const dropdown = document.getElementById('eventDropdown');
 
       if (isGoogleEnvironment()) {
-        // 🚀 โหมด 1: ทำงานใน Google Apps Script Web App
         badge.textContent = "World Robot Olympiad 2026";
         badge.className = "text-xs bg-emerald-600 text-white px-3 py-1 rounded-full font-bold tracking-widest uppercase";
-        
         google.script.run.withSuccessHandler(events => renderDropdown(events)).getEvents();
       } else {
-        // 🌐 โหมด 2: ทำงานข้างนอกบน GitHub Pages
         badge.textContent = "World Robot Olympiad 2026";
         badge.className = "text-xs bg-indigo-600 text-white px-3 py-1 rounded-full font-bold tracking-widest uppercase";
         
@@ -135,6 +175,7 @@
 
       if (!selectedEvent) {
         container.innerHTML = ''; liveStatus.classList.add('hidden');
+        window.lastRawData = null;
         if (refreshTimer) clearInterval(refreshTimer);
         return;
       }
@@ -149,7 +190,6 @@
         lastUpdatedText.textContent = "กำลังตรวจสอบสถานะล่าสุด...";
       }
 
-      // แยกเส้นทางการดึงข้อมูลตามจุดที่ระบบเปิดใช้งานอยู่
       if (isGoogleEnvironment()) {
         google.script.run.withSuccessHandler(data => processAndRenderGrid(data, isBackground)).getEventData(selectedEvent);
       } else {
@@ -161,9 +201,13 @@
     }
 
     function processAndRenderGrid(data, isBackground) {
+      window.lastRawData = data; 
+      
       const container = document.getElementById('gridContainer');
       const liveStatus = document.getElementById('liveStatus');
       const lastUpdatedText = document.getElementById('lastUpdatedText');
+      
+      const isInvertedMode = document.getElementById('colorModeToggle').checked;
       
       let mainContentHtml = '';
       const groups = {};
@@ -176,7 +220,20 @@
         
         if (match) {
           const letter = match[1].toUpperCase(); const num = parseInt(match[2]);       
-          if (!groups[letter]) groups[letter] = { maxNum: 0, dbItems: {} };
+          
+          let derivedAgeGroup = "WRO Team";
+          const checkString = item.name ? item.name.toString() : "";
+          if (checkString.includes("Elementary")) derivedAgeGroup = "Elementary";
+          else if (checkString.includes("Junior")) derivedAgeGroup = "Junior";
+          else if (checkString.includes("Senior")) derivedAgeGroup = "Senior";
+
+          if (!groups[letter]) {
+            groups[letter] = { maxNum: 0, dbItems: {}, ageGroup: derivedAgeGroup };
+          }
+          if (groups[letter].ageGroup === "WRO Team" && derivedAgeGroup !== "WRO Team") {
+            groups[letter].ageGroup = derivedAgeGroup;
+          }
+
           groups[letter].dbItems[seatCodeClean] = item;
           if (num > groups[letter].maxNum) groups[letter].maxNum = num;
         }
@@ -189,8 +246,28 @@
 
       Object.keys(groups).sort().forEach(letter => {
         const group = groups[letter]; const capacity = group.maxNum; 
-        mainContentHtml += `<div class="bg-slate-50 border border-slate-200/60 p-4 rounded-2xl flex flex-col items-center shadow-sm hover:bg-white hover:shadow-xl hover:border-slate-300 transition-all duration-300">`;
-        mainContentHtml += `<div class="w-full text-center bg-[#16195e] text-white py-1.5 mb-4 rounded-xl font-bold text-sm shadow-sm tracking-wide">Group ${letter}</div>`;
+        
+        let containerClass = "bg-slate-50 border border-slate-200/60 p-4 rounded-2xl flex flex-col items-center shadow-sm hover:bg-white hover:shadow-xl hover:border-slate-300 transition-all duration-300";
+        let headerClass = "w-full text-center bg-[#16195e] text-white py-1.5 mb-4 rounded-xl font-bold text-sm shadow-sm tracking-wide";
+        let defaultTextCategoryColor = "text-slate-400";
+        let defaultSeatColor = "text-slate-700";
+
+        if (group.ageGroup === "Elementary") {
+          containerClass = "bg-green-50/50 border border-green-200/60 p-4 rounded-2xl flex flex-col items-center shadow-sm hover:bg-white hover:shadow-xl hover:border-green-300 transition-all duration-300";
+          headerClass = "w-full text-center bg-green-600 text-white py-1.5 mb-4 rounded-xl font-bold text-sm shadow-sm tracking-wide";
+          defaultTextCategoryColor = "text-green-600 font-bold"; defaultSeatColor = "text-green-700";
+        } else if (group.ageGroup === "Junior") {
+          containerClass = "bg-rose-50/50 border border-rose-200/60 p-4 rounded-2xl flex flex-col items-center shadow-sm hover:bg-white hover:shadow-xl hover:border-rose-300 transition-all duration-300";
+          headerClass = "w-full text-center bg-rose-600 text-white py-1.5 mb-4 rounded-xl font-bold text-sm shadow-sm tracking-wide";
+          defaultTextCategoryColor = "text-red-500 font-bold"; defaultSeatColor = "text-red-600";
+        } else if (group.ageGroup === "Senior") {
+          containerClass = "bg-blue-50/50 border border-blue-200/60 p-4 rounded-2xl flex flex-col items-center shadow-sm hover:bg-white hover:shadow-xl hover:border-blue-300 transition-all duration-300";
+          headerClass = "w-full text-center bg-blue-600 text-white py-1.5 mb-4 rounded-xl font-bold text-sm shadow-sm tracking-wide";
+          defaultTextCategoryColor = "text-blue-600 font-bold"; defaultSeatColor = "text-blue-700";
+        }
+
+        mainContentHtml += `<div class="${containerClass}">`;
+        mainContentHtml += `<div class="${headerClass}">${group.ageGroup} (${letter})</div>`;
         mainContentHtml += `<div class="grid grid-cols-2 gap-2">`; 
 
         for (let r = 1; r <= 6; r++) {
@@ -199,7 +276,7 @@
 
           [ {num: leftNum, crossed: !leftNum}, {num: rightNum, crossed: !rightNum} ].forEach(cell => {
             const targetSeatKey = cell.num ? `${letter}${cell.num}` : "";
-            let cellClass = "w-20 h-20 sm:w-22 sm:h-22 border border-slate-200 rounded-2xl flex flex-col items-center justify-center text-center p-2 bg-white transition-all duration-300 ease-out hover:scale-108 hover:shadow-lg hover:border-[#4c3d90] cursor-pointer group relative";
+            let cellClass = "w-20 h-20 sm:w-22 sm:h-22 border border-slate-200 rounded-2xl flex flex-col items-center justify-center text-center p-2 transition-all duration-300 ease-out hover:scale-108 hover:shadow-lg cursor-pointer group relative";
             let cellContent = "";
 
             if (cell.crossed) {
@@ -209,26 +286,31 @@
               const record = group.dbItems[targetSeatKey];
               if(record) { window.currentEventData[targetSeatKey] = record; }
 
-              let textCategoryClass = "text-slate-400"; let seatColorClass = "text-slate-700";
-              const checkString = record ? (record.name || "").toString() : "";
+              let seatLabelHtml = `<span class="text-xl sm:text-2xl font-bold tracking-tight ${defaultSeatColor}">${targetSeatKey}</span>`;
+              let nameLabelHtml = `<span class="text-[10px] sm:text-[11px] leading-tight mt-1 line-clamp-1 w-full break-all ${defaultTextCategoryColor}">${record ? (record.teamId || "-") : ""}</span>`;
 
-              if (checkString.includes("Elementary")) { textCategoryClass = "text-orange-500 font-bold"; seatColorClass = "text-orange-600"; }
-              else if (checkString.includes("Junior")) { textCategoryClass = "text-red-500 font-bold"; seatColorClass = "text-red-600"; }
-              else if (checkString.includes("Senior")) { textCategoryClass = "text-blue-600 font-bold"; seatColorClass = "text-blue-700"; }
-
-              let seatLabelHtml = `<span class="text-xl sm:text-2xl font-bold tracking-tight ${seatColorClass}">${targetSeatKey}</span>`;
-              let nameLabelHtml = `<span class="text-[10px] sm:text-[11px] leading-tight mt-1 line-clamp-1 w-full break-all ${textCategoryClass}">${record ? record.name : ""}</span>`;
-
+              // 🎯 จัดการรูปแบบผังสีสำหรับทีมที่ Check in แล้ว
               if (record && record.status === "Check in") {
-                cellClass += " bg-emerald-600 border-emerald-700 text-white hover:bg-emerald-500";
-                seatLabelHtml = `<span class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">${targetSeatKey}</span>`;
-                nameLabelHtml = `<span class="text-[10px] sm:text-[11px] leading-tight font-semibold text-emerald-100 mt-1 line-clamp-1 w-full break-all">${record.name}</span>`;
+                if (!isInvertedMode) {
+                  // ⭐ [โหมดปกติ]: ไม่ชี้ = พื้นม่วงเข้ม ตัวอักษรขาว | ชี้เมาส์ = พื้นขาว ตัวอักษรม่วง กรอบม่วง
+                  cellClass += " bg-purple-600 border-purple-700 text-white hover:bg-white hover:border-purple-600";
+                  seatLabelHtml = `<span class="text-xl sm:text-2xl font-bold tracking-tight text-white group-hover:text-purple-600 transition-colors">${targetSeatKey}</span>`;
+                  nameLabelHtml = `<span class="text-[10px] sm:text-[11px] leading-tight font-bold text-purple-100 group-hover:text-purple-700 mt-1 line-clamp-1 w-full break-all transition-colors">${record.teamId || "-"}</span>`;
+                } else {
+                  // 🔮 [โหมดสลับสี]: ไม่ชี้ = พื้นจางพาสเทล ตัวอักษรม่วงพาสเทลจางๆ | ชี้เมาส์ = พื้นขาว ตัวอักษรม่วงเข้ม กรอบม่วง
+                  cellClass += " bg-purple-50 border-purple-200 hover:bg-white hover:border-purple-600";
+                  seatLabelHtml = `<span class="text-xl sm:text-2xl font-bold tracking-tight text-gray-400/30 group-hover:text-purple-400 transition-colors">${targetSeatKey}</span>`;
+                  nameLabelHtml = `<span class="text-[10px] sm:text-[11px] leading-tight font-bold text-purple-400 group-hover:text-purple-700 mt-1 line-clamp-1 w-full break-all transition-colors">${record.teamId || "-"}</span>`;
+                }
+              } else {
+                // ◽ ช่องว่าง หรือช่องที่ยังไม่เช็คอิน ให้คงเป็นพื้นหลังสีขาวธรรมดาไว้
+                cellClass += " bg-white hover:border-[#4c3d90]";
               }
               cellContent = seatLabelHtml + nameLabelHtml;
 
               if (record) {
                 const statusBadge = record.status === "Check in" 
-                  ? `<span class="text-xs bg-emerald-500 text-white px-2.5 py-0.5 rounded-full font-bold">Check in แล้ว</span>` 
+                  ? `<span class="text-xs bg-purple-500 text-white px-2.5 py-0.5 rounded-full font-bold">Check in </span>` 
                   : `<span class="text-xs bg-slate-600 text-slate-200 px-2.5 py-0.5 rounded-full font-medium">ยังไม่ Check in</span>`;
 
                 cellContent += `
@@ -237,7 +319,8 @@
                       <span class="font-extrabold text-base text-[#39a9dc]"> ${targetSeatKey}</span>
                       ${statusBadge}
                     </div>
-                    <p class="truncate text-sm mt-1"><span class="text-slate-400 font-medium">Team:</span> <span class="font-semibold text-white">${record.teamName || record.name || '-'}</span></p>
+                    <p class="truncate text-sm mt-1"><span class="text-slate-400 font-medium">Team ID:</span> <span class="font-mono font-bold text-amber-400">${record.teamId || '-'}</span></p>
+                    <p class="truncate text-sm mt-1"><span class="text-slate-400 font-medium">Team Name:</span> <span class="font-semibold text-white">${record.teamName || record.name || '-'}</span></p>
                     <p class="truncate text-xs text-indigo-300 mt-2 flex items-center gap-1">💡 คลิกที่ช่องเพื่อดูข้อมูลสมาชิกแบบเต็ม</p>
                     <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-950"></div>
                   </div>`;
@@ -256,7 +339,7 @@
 
       if (!isBackground) {
         if (refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(() => loadEventData(true), 60000);
+        refreshTimer = setInterval(() => loadEventData(true), 30000); 
       }
     }
 
@@ -264,11 +347,11 @@
       const record = window.currentEventData[seatKey]; if (!record) return; 
       const isCheckedIn = record.status === "Check in";
       const statusBadgeHtml = isCheckedIn
-        ? `<span class="inline-block bg-emerald-500 text-white text-sm px-4 py-1 rounded-full font-bold shadow-sm">✓ Check in เรียบร้อยแล้ว</span>`
+        ? `<span class="inline-block bg-purple-500 text-white text-sm px-4 py-1 rounded-full font-bold shadow-sm">✓ Check in เรียบร้อยแล้ว</span>`
         : `<span class="inline-block bg-amber-500 text-white text-sm px-4 py-1 rounded-full font-semibold shadow-sm">⏳ ยังไม่ได้ทำการ Check in</span>`;
 
       Swal.fire({
-        title: `📋 ข้อมูลทีม [ ${seatKey} ]`,
+        title: `📋 Infomation [ ${seatKey} ]`,
         html: `
           <div class="text-left text-base space-y-4 mt-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 font-sans text-slate-700">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3 mb-2">
@@ -292,7 +375,7 @@
             </div>
           </div>`,
         icon: isCheckedIn ? 'success' : 'warning',
-        confirmButtonText: 'ปิด', confirmButtonColor: isCheckedIn ? '#10b981' : '#16195e',
+        confirmButtonText: 'ปิด', confirmButtonColor: isCheckedIn ? '#8b5cf6' : '#16195e',
         buttonsStyling: true,
         customClass: { popup: 'rounded-3xl p-6 max-w-xl w-full', title: 'font-black text-slate-800 text-xl sm:text-2xl tracking-tight' }
       });
