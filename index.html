@@ -316,12 +316,12 @@
               if (record) {
                 const statusBadge = record.status === "Check in" 
                   ? `<span class="text-xs bg-purple-500 text-white px-2.5 py-0.5 rounded-full font-bold">Check in แล้ว</span>` 
-                  : `<span class="text-xs bg-slate-600 text-slate-200 px-2.5 py-0.5 rounded-full font-medium">ยังไม่ Check in</span>`;
+                  : `<span class="text-xs bg-slate-600 text-slate-200 px-2.5 py-0.5 rounded-full font-medium">รอดำเนินการ...</span>`;
 
                 cellContent += `
                   <div class="absolute hidden group-hover:block bottom-[105%] left-1/2 -translate-x-1/2 mb-2 w-72 bg-slate-950 text-slate-100 text-sm rounded-2xl p-4 shadow-2xl border border-slate-800 z-50 pointer-events-none text-left backdrop-blur-md bg-opacity-95 transition-all">
                     <div class="border-b border-slate-800 pb-2 mb-2 flex justify-between items-center">
-                      <span class="font-extrabold text-base text-[#39a9dc]"> ช่อง: ${targetSeatKey}</span>
+                      <span class="font-extrabold text-base text-[#39a9dc]"> Seat No :${targetSeatKey}</span>
                       ${statusBadge}
                     </div>
                     <p class="truncate text-sm mt-1"><span class="text-slate-400 font-medium">Team ID:</span> <span class="font-mono font-bold text-amber-400">${record.teamId || '-'}</span></p>
@@ -352,7 +352,7 @@
       const record = window.currentEventData[seatKey]; if (!record) return; 
       const isCheckedIn = record.status === "Check in";
       const statusBadgeHtml = isCheckedIn
-        ? `<span class="inline-block bg-purple-500 text-white text-sm px-4 py-1 rounded-full font-bold shadow-sm">✓ Check in เรียบร้อยแล้ว</span>`
+        ? `<span class="inline-block bg-purple-500 text-white text-sm px-4 py-1 rounded-full font-bold shadow-sm">✓ Check in แล้ว</span>`
         : `<span class="inline-block bg-amber-500 text-white text-sm px-4 py-1 rounded-full font-semibold shadow-sm">⏳ ยังไม่ได้ทำการ Check in</span>`;
 
       Swal.fire({
@@ -370,7 +370,7 @@
             <p class="flex gap-2 text-base"><strong class="text-slate-500 min-w-28 text-sm sm:text-base">Phone No:</strong> <span class="text-slate-900 font-bold bg-indigo-50 text-indigo-950 px-2 py-0.5 rounded border border-indigo-100/60">${record.phone || '-'}</span></p>
             
             <div class="pt-4 border-t border-slate-200 mt-2">
-              <p class="font-extrabold text-slate-900 text-base sm:text-lg mb-2 flex items-center gap-1">👥 รายชื่อสมาชิก:</p>
+              <p class="font-extrabold text-slate-900 text-base sm:text-lg mb-2 flex items-center gap-1">👥 สมาชิกทีม :</p>
               <div class="bg-white border border-slate-100 p-3 rounded-xl space-y-2 text-slate-800 pl-4 list-decimal text-base">
                 ${record.member1 ? `<div class="truncate py-0.5"><span class="font-extrabold text-slate-400 mr-2">1.</span><span class="font-medium">${record.member1}</span></div>` : ''}
                 ${record.member2 ? `<div class="truncate py-0.5"><span class="font-extrabold text-slate-400 mr-2">2.</span><span class="font-medium">${record.member2}</span></div>` : ''}
